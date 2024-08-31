@@ -1,0 +1,94 @@
+version: '2.3'
+
+services:
+  app:
+    image: 
+    environment:
+      - DATABASE_URL=postgres://gorm:gorm@db/gorm?sslmode=disable
+      - RABBITMQ_URL=amqp://guest:guest@rabbitmq
+      - REDIS_URL=redis://redis:6379
+    depends_on:
+      db:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_started
+      redis:
+        condition: service_started
+    networks:
+      - proxy
+      - service  
+    labels:
+      - traefik.enable=true
+      - traefik.docker.network=proxy
+      - traefik.http.routers.httpd.rule=Host(`dynamic-dynamics.com`)
+      - traefik.http.middlewares.x-forward-proto.headers.customrequestheaders.X-Forwarded-Proto=https
+      - traefik.http.routers.httpd.middlewares=x-forward-proto@docker
+      - traefik.http.services.httpd.loadbalancer.server.port=80
+      - traefik.http.routers.httpd.service=httpd
+      - traefik.http.routers.httpd.entrypoints=websecure
+      - traefik.http.routers.httpd.tls=true
+      - traefik.http.routers.httpd.tls.certresolver=letsencrypt
+  
+  db:
+    image: postgres:13
+    environment:
+      POSTGRES_USER: gorm
+      POSTGRES_PASSWORD: gorm
+      POSTGRES_DB: gorm
+    volumes:
+      - ./scripts/init.sql:/docker-entrypoint-initdb.d/init.sql
+    ports:
+      - "5432:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U gorm"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - service
+
+  rabbitmq:
+    image: rabbitmq:3-management
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+    networks:
+      - service
+      
+  
+  redis:
+    image: redis:6 #change to keydb before prod
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    networks:
+      - service
+      
+
+  traefik:
+    image: "traefik:v2.9"
+    restart: always
+    ports:
+     - "80:80"
+     - "443:443"
+    volumes:
+     - ./traefik/traefik.yaml:/etc/traefik/traefik.yaml
+     - /var/run/docker.sock:/var/run/docker.sock
+     - ./traefik/config.yaml:/config.yaml
+     - ./letsencrypt:/letsencrypt
+     - ./acme.json:/acme.json
+    networks:
+     - proxy
+
+networks:
+  proxy:
+    external:
+      name: proxy
+  networks:
+  service:
+    driver: bridge
+
+volumes:
+  mysql: 
+    driver: local
