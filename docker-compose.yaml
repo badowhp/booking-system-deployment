@@ -83,8 +83,9 @@ services:
 
 networks:
   proxy:
-    external:
+      external: true
       name: proxy
+
   service:
     driver: bridge
 
