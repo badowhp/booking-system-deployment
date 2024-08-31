@@ -92,5 +92,4 @@ networks:
 volumes:
   mysql: 
     driver: local
-  redis:
-    driver: local
+  redis_data:
