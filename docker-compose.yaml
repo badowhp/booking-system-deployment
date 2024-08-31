@@ -2,7 +2,7 @@ version: '2.3'
 
 services:
   app:
-    image: 
+    image: "sjc.vultrcr.com/swagops/booking-system:latest"
     environment:
       - DATABASE_URL=postgres://gorm:gorm@db/gorm?sslmode=disable
       - RABBITMQ_URL=amqp://guest:guest@rabbitmq
