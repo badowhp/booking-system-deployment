@@ -7,6 +7,8 @@ This project uses Docker Compose and Traefik to run a multi-container applicatio
 - Docker
 - Docker Compose
 
+acme.json needs chmod 600 and the file created beforehand, please also check new bind type in volumes for traefik
+
 ## Running the app
 
 - sudo docker-compose --env-file .env up -d
