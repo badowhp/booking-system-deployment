@@ -70,12 +70,3 @@ INSERT INTO products (name, price, rrp, date_bought, stock, category, supplier, 
 ('Product 1', 19.99, 24.99, '2023-01-01', 100, 'Category A', 'Supplier X', '/static/img/product1.jpg'),
 ('Product 2', 29.99, 34.99, '2023-02-01', 200, 'Category B', 'Supplier Y', '/static/img/product2.jpg');
 
--- Insert admin user
-INSERT INTO users (username, password, role, name, email, age, member_number)
-VALUES ('admin', '$2a$10$1qAz2wSx3eDc4rFv5tGb5t8lWGIVzOBjdqd4T.VmZv.PGKk/RjJEW', 'admin', 'Admin User', 'admin@example.com', 30, 1)
-ON CONFLICT (email) DO NOTHING;
-
--- Note: The password for the admin user is 'adminpassword'. It's hashed using bcrypt.
-
--- Normal User Password: password123
--- Admin User Password: adminpassword
